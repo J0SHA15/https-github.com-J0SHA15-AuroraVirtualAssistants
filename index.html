@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Aurora - Tu Asistente Virtual</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <h1>Aurora - Tu Asistente Virtual</h1>
+
+    <div id="chat-box">
+        <!-- Aquí se mostrarán los mensajes de chat -->
+    </div>
+
+    <div id="user-input">
+        <input type="text" id="user-message" placeholder="Escribe tu mensaje...">
+        <button id="send-button">Enviar</button>
+        <button id="voice-button">Reconocimiento de Voz</button>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Función para mostrar un mensaje en el chat-box
+            function showMessage(message, sender) {
+                var messageDiv = document.createElement("div");
+                messageDiv.className = "message " + sender;
+                messageDiv.innerHTML = message;
+                $("#chat-box").append(messageDiv);
+            }
+
+            $("#send-button").click(function() {
+                var userMessage = $("#user-message").val();
+                showMessage(userMessage, "user");
+                $("#user-message").val(""); // Limpiar el campo de entrada
+                
+                // Enviar solicitud POST al servidor Flask
+                $.ajax({
+                    type: 'POST',
+                    url: '/chat',  // Asegúrate de que esta URL coincida con la ruta en tu servidor Flask
+                    contentType: 'application/json',
+                    data: JSON.stringify({ 'user_message': userMessage }),
+                    success: function(data) {
+                        showMessage(data.bot_message, "bot");
+                    },
+                    error: function() {
+                        showMessage("Error al obtener respuesta del servidor.", "bot");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
